@@ -43,7 +43,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
     >
       {/* Top 3D Beveled AppBar Matched to Active 3D World & Ball Colors */}
       <div
-        className="relative w-full h-[64px] px-3 flex items-center justify-between gap-2"
+        className="relative w-full min-h-[64px] pt-[env(safe-area-inset-top)] px-3 flex items-center justify-between gap-2"
         style={{
           background: theme.ui.barGradient,
           borderBottom: `1px solid ${theme.ui.barBorder}`,
@@ -109,7 +109,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
       </div>
 
       {/* Bottom 3D Cannon Side Docks */}
-      <div className="w-full px-3 pb-3 flex items-end justify-between">
+      <div className="w-full px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-end justify-between">
         {/* Left Side: Colorful 3D Swap Button + Ceiling Pressure Pips */}
         <div className="flex flex-col items-start gap-1.5 pointer-events-auto">
           <div className="flex items-center gap-1 px-1" title="Ceiling pressure">

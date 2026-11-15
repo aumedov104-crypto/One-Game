@@ -3,17 +3,206 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Sharikboz 3D — Bubble Cannon</title>
-    <meta name="description" content="A 3D vertical 9:16 arcade bubble cannon game with 50 stages, 5 evolving worlds, wall ricochets, and cascading drops." />
-    <meta property="og:title" content="Sharikboz 3D — Bubble Cannon" />
-    <meta property="og:description" content="A 3D vertical 9:16 arcade bubble cannon game with 50 stages, 5 evolving worlds, wall ricochets, and cascading drops." />
+    <title>Игра Шарики · Bubble Shooter 3D</title>
+    <meta name="description" content="3D вертикальный аркадный бабл-шутер: 50 уровней, 5 миров, рикошеты и каскадные взрывы." />
+    <meta property="og:title" content="Игра Шарики · Bubble Shooter 3D" />
+    <meta property="og:description" content="3D vertical arcade Bubble Shooter with 50 stages, 5 evolving worlds, wall ricochets, and cascading drops." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      #app-preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: radial-gradient(circle at 50% 24%, #1a336b 0%, #091020 58%, #04070f 100%);
+        color: #f8fafc;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        transition: opacity 380ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #app-preloader.is-done {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .pl-top-strip {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #cc1424 0%, #ff7b00 20%, #f5df00 40%, #16a33a 60%, #1955e6 80%, #a824d6 100%);
+      }
+      .pl-card {
+        width: 100%;
+        max-width: 340px;
+        padding: 28px 24px 24px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(26, 51, 107, 0.92) 0%, rgba(13, 26, 61, 0.96) 100%);
+        border: 1px solid rgba(96, 165, 250, 0.4);
+        box-shadow: 0 10px 0 #060a14, 0 22px 48px rgba(0, 0, 0, 0.85), inset 0 2px 1px rgba(255, 255, 255, 0.18);
+        text-align: center;
+      }
+      .pl-orbs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .pl-orb {
+        width: 26px;
+        height: 26px;
+        border-radius: 9999px;
+        position: relative;
+        box-shadow: inset -4px -5px 8px rgba(0, 0, 0, 0.45), inset 3px 3px 6px rgba(255, 255, 255, 0.55), 0 6px 12px rgba(0, 0, 0, 0.5);
+        animation: plBob 1.25s ease-in-out infinite;
+      }
+      .pl-orb::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 5px;
+        width: 8px;
+        height: 5px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.75);
+        transform: rotate(-28deg);
+      }
+      .pl-title {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: #fde047;
+        text-shadow: 0 1px 0 #d97706, 0 2px 0 #b45309, 0 3px 0 #78350f, 0 6px 14px rgba(0, 0, 0, 0.75);
+      }
+      .pl-sub {
+        margin: 4px 0 20px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #93c5fd;
+      }
+      .pl-track {
+        width: 100%;
+        height: 14px;
+        padding: 2px;
+        border-radius: 9999px;
+        background: #070d1d;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.75);
+        overflow: hidden;
+      }
+      .pl-fill {
+        width: 12%;
+        height: 100%;
+        border-radius: 9999px;
+        background: linear-gradient(90deg, #ff7b00 0%, #f5df00 50%, #38bdf8 100%);
+        box-shadow: 0 0 12px rgba(245, 223, 0, 0.55);
+        transition: width 220ms ease-out;
+      }
+      .pl-meta {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        font-weight: 600;
+        color: #cbd5e1;
+      }
+      .pl-pct {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-weight: 800;
+        color: #fde047;
+      }
+      @keyframes plBob {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-7px) scale(1.06); }
+      }
+    </style>
   </head>
   <body class="bg-[#060913] text-slate-100 antialiased selection:bg-amber-400/30 overflow-hidden">
+    <div id="app-preloader" role="status" aria-live="polite">
+      <div class="pl-top-strip"></div>
+      <div class="pl-card">
+        <div class="pl-orbs" aria-hidden="true">
+          <span class="pl-orb" style="background: radial-gradient(circle at 35% 30%, #ff6b78, #cc1424 72%); animation-delay: 0ms;"></span>
+          <span class="pl-orb" style="background: radial-gradient(circle at 35% 30%, #ffb86b, #ff7b00 72%); animation-delay: 110ms;"></span>
+          <span class="pl-orb" style="background: radial-gradient(circle at 35% 30%, #fff78a, #f5df00 72%); animation-delay: 220ms;"></span>
+          <span class="pl-orb" style="background: radial-gradient(circle at 35% 30%, #5ee07f, #16a33a 72%); animation-delay: 330ms;"></span>
+          <span class="pl-orb" style="background: radial-gradient(circle at 35% 30%, #6ba0ff, #1955e6 72%); animation-delay: 440ms;"></span>
+          <span class="pl-orb" style="background: radial-gradient(circle at 35% 30%, #d985ff, #a824d6 72%); animation-delay: 550ms;"></span>
+        </div>
+        <h1 class="pl-title" id="pl-title">Игра Шарики</h1>
+        <p class="pl-sub" id="pl-sub">Bubble Shooter 3D</p>
+        <div class="pl-track">
+          <div class="pl-fill" id="pl-fill"></div>
+        </div>
+        <div class="pl-meta">
+          <span id="pl-label">Загрузка игры…</span>
+          <span class="pl-pct" id="pl-pct">12%</span>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var pct = 12;
+        var finished = false;
+        var fill = document.getElementById('pl-fill');
+        var pctEl = document.getElementById('pl-pct');
+        var labelEl = document.getElementById('pl-label');
+        var titleEl = document.getElementById('pl-title');
+        var subEl = document.getElementById('pl-sub');
+        try {
+          var raw = localStorage.getItem('sharikboz_3d_save_v1');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.language === 'en') {
+              if (titleEl) titleEl.textContent = 'Bubble Shooter';
+              if (subEl) subEl.textContent = '3D Arcade Cannon';
+              if (labelEl) labelEl.textContent = 'Loading 3D arena…';
+            }
+          }
+        } catch (e) {}
+        function renderPct(val) {
+          pct = Math.max(pct, Math.min(100, val));
+          if (fill) fill.style.width = pct + '%';
+          if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+        }
+        var timer = window.setInterval(function () {
+          if (finished) return;
+          if (pct < 72) {
+            renderPct(pct + (74 - pct) * 0.14);
+          }
+        }, 140);
+        window.__setPreloaderProgress = function (target) {
+          if (finished) return;
+          renderPct(target);
+        };
+        window.__finishPreloader = function () {
+          if (finished) return;
+          finished = true;
+          window.clearInterval(timer);
+          renderPct(100);
+          var el = document.getElementById('app-preloader');
+          if (!el) return;
+          window.setTimeout(function () {
+            el.classList.add('is-done');
+            window.setTimeout(function () {
+              if (el && el.parentNode) el.parentNode.removeChild(el);
+            }, 420);
+          }, 160);
+        };
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

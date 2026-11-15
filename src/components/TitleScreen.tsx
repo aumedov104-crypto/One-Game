@@ -12,6 +12,7 @@ interface TitleScreenProps {
   onStartLevel: (levelId: number) => void;
   onToggleMute: () => void;
   onToggleLang: () => void;
+  onReady?: () => void;
 }
 
 const ORB_JEWEL_KEYS = ['red', 'amber', 'green', 'teal', 'blue', 'violet'] as const;
@@ -23,6 +24,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
   onStartLevel,
   onToggleMute,
   onToggleLang,
+  onReady,
 }) => {
   const activeStage = Math.min(save.unlockedLevel, LEVELS.length);
   const [selectedWorld, setSelectedWorld] = useState<number>(() =>
@@ -47,7 +49,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
       className="relative w-full h-full overflow-hidden bg-[#070d1d] flex flex-col justify-between"
     >
       {/* Identical Live 3D Gameplay Arena Preview */}
-      <Title3DBackground theme={activeTheme} stageId={previewStageId} />
+      <Title3DBackground theme={activeTheme} stageId={previewStageId} onReady={onReady} />
 
       {/* Light scrim only behind Stage Map; Title stays open so 3D spheres & cannon shine */}
       {showLevelMap && (
@@ -61,7 +63,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
 
       {/* Top Perimeter AppBar — Matches Gameplay GameHUD Bar & World Colors Identically */}
       <div
-        className="relative z-10 w-full h-[64px] px-3 flex items-center justify-between gap-2"
+        className="relative z-10 w-full min-h-[64px] pt-[env(safe-area-inset-top)] px-3 flex items-center justify-between gap-2"
         style={{
           background: activeTheme.ui.barGradient,
           borderBottom: `1px solid ${activeTheme.ui.barBorder}`,
@@ -120,8 +122,8 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
 
       {!showLevelMap ? (
         /* Centered Compact 3D Title & Controls sitting between 3D spheres (top) and 3D cannon (bottom) */
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-24 px-5 pointer-events-none">
-          <div className="panel-3d rounded-2xl px-5 py-4 flex flex-col items-center gap-2.5 w-full max-w-[272px] pointer-events-auto">
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-[clamp(3.25rem,10dvh,5.75rem)] px-4 pointer-events-none">
+          <div className="panel-3d rounded-2xl px-4 py-3.5 flex flex-col items-center gap-2.5 w-full max-w-[min(276px,86vw)] pointer-events-auto">
             {/* Row of 6 Colorful 3D-Shaded Mini Ball Jewels */}
             <div className="flex items-center justify-center gap-2 pt-0.5" aria-hidden="true">
               {ORB_JEWEL_KEYS.map((key) => {
@@ -141,8 +143,8 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
 
             {/* Compact 3D Extruded SVG Title matching Arena Palette */}
             <svg
-              viewBox="0 0 320 72"
-              className="w-full max-w-[235px]"
+              viewBox="0 0 340 72"
+              className="w-full max-w-[244px]"
               role="img"
               aria-label={t.gameTitle}
             >
@@ -157,7 +159,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
               {[4, 2.5, 1.2].map((dy, idx) => (
                 <text
                   key={idx}
-                  x="160"
+                  x="170"
                   y={38 + dy}
                   textAnchor="middle"
                   fill={idx === 0 ? '#110A02' : '#78350F'}
@@ -167,8 +169,8 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                   style={{
                     fontFamily: 'Montserrat, sans-serif',
                     fontWeight: 900,
-                    fontSize: '31px',
-                    letterSpacing: '0.03em',
+                    fontSize: '28px',
+                    letterSpacing: '0.02em',
                   }}
                 >
                   {t.gameTitle}
@@ -176,7 +178,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
               ))}
 
               <text
-                x="160"
+                x="170"
                 y="38"
                 textAnchor="middle"
                 fill="url(#gold3dFace)"
@@ -186,23 +188,23 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                 style={{
                   fontFamily: 'Montserrat, sans-serif',
                   fontWeight: 900,
-                  fontSize: '31px',
-                  letterSpacing: '0.03em',
+                  fontSize: '28px',
+                  letterSpacing: '0.02em',
                 }}
               >
                 {t.gameTitle}
               </text>
 
               <text
-                x="160"
+                x="170"
                 y="60"
                 textAnchor="middle"
                 fill="#E2E8F0"
                 style={{
                   fontFamily: '"IBM Plex Sans", sans-serif',
                   fontWeight: 600,
-                  fontSize: '11px',
-                  letterSpacing: '0.12em',
+                  fontSize: '10.5px',
+                  letterSpacing: '0.1em',
                 }}
               >
                 {t.level.toUpperCase()} {activeStage} ·{' '}
@@ -242,7 +244,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
         </div>
       ) : (
         /* 50-Stage Compact 3D Selector with World-Colored Tabs */
-        <div className="relative z-10 flex-1 flex flex-col px-4 pb-4 pt-3 overflow-hidden">
+        <div className="relative z-10 flex-1 min-h-0 flex flex-col px-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 overflow-hidden">
           <div className="flex items-baseline justify-between mb-2 px-1">
             <h2 className="font-display font-black text-base text-3d-white">{t.levelMap}</h2>
             <span className="text-xs font-mono font-bold tabular-nums text-3d-amber">

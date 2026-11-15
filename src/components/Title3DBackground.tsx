@@ -8,6 +8,7 @@ import { ThemeConfig } from '../game/types';
 interface Title3DBackgroundProps {
   theme: ThemeConfig;
   stageId: number;
+  onReady?: () => void;
 }
 
 /**
@@ -15,7 +16,7 @@ interface Title3DBackgroundProps {
  * and a live preview cluster of 3D spheres from the selected stage/world so
  * the pre-game Title & Stage screens feel 100% unified with the game scene.
  */
-export const Title3DBackground: React.FC<Title3DBackgroundProps> = ({ theme, stageId }) => {
+export const Title3DBackground: React.FC<Title3DBackgroundProps> = ({ theme, stageId, onReady }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const engineRef = useRef<Sharikboz3DEngine | null>(null);
   const stateRef = useRef<{ theme: ThemeConfig; stageId: number }>({ theme, stageId });
@@ -33,10 +34,12 @@ export const Title3DBackground: React.FC<Title3DBackgroundProps> = ({ theme, sta
 
     let frameId = 0;
     let disposed = false;
+    let reportedReady = false;
     let time = 0;
     let lastTs = performance.now();
     let lastStageId = -1;
     let previewGrid = buildLevelGrid(LEVELS[0]);
+    const onReadyRef = onReady;
 
     const afterDraw = (cb: () => void) => {
       const gl = engine.renderer.getContext() as WebGL2RenderingContext;
@@ -98,6 +101,11 @@ export const Title3DBackground: React.FC<Title3DBackgroundProps> = ({ theme, sta
         dangerProximity: 0,
         bucketFlash: [0, 0, 0, 0, 0],
       });
+
+      if (!reportedReady) {
+        reportedReady = true;
+        onReadyRef?.();
+      }
 
       if (engine.isSoftwareGl) afterDraw(tick);
       else frameId = requestAnimationFrame(tick);

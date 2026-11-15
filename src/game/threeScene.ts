@@ -83,6 +83,7 @@ export class Sharikboz3DEngine {
   private container: HTMLElement;
   private currentTheme: ThemeConfig | null = null;
   private maxAnisotropy = 4;
+  private resizeObserver: ResizeObserver | null = null;
 
   // Lighting
   private hemiLight: THREE.HemisphereLight;
@@ -147,11 +148,9 @@ export class Sharikboz3DEngine {
   private projectileVisual: THREE.Group | null = null;
   private projectileSig = '';
 
-  // Trajectory & Ghost Ring
+  // Trajectory Beads
   private maxBeads = 70;
   private beadInstanced: THREE.InstancedMesh;
-  private ghostRing: THREE.Mesh;
-  private ghostRingMat: THREE.MeshBasicMaterial;
 
   // Pooled 3D Particles
   private maxParticles = 240;
@@ -217,10 +216,16 @@ export class Sharikboz3DEngine {
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     pmrem.dispose();
 
-    // Camera framed for 9:16 vertical arcade playfield
-    this.camera = new THREE.PerspectiveCamera(38, w / h, 0.5, 120);
+    // Camera dynamically framed for ALL phone aspect ratios (from 21:9 narrow to 16:9 & tablets)
+    this.camera = new THREE.PerspectiveCamera(38, w / Math.max(1, h), 0.5, 160);
     this.camera.position.set(0, -1.5, 37.2);
     this.camera.lookAt(0, -0.35, 0);
+    this.updateCameraFraming(w, h);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.resize());
+      this.resizeObserver.observe(container);
+    }
 
     // 3-Point Studio Lighting (classic balanced contrast so colors never bleach)
     this.hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x161d36, 0.65);
@@ -256,7 +261,7 @@ export class Sharikboz3DEngine {
     this.iceShellGeo = new THREE.IcosahedronGeometry(R3D * 1.06, 1);
     this.gyroRingGeo = new THREE.TorusGeometry(R3D * 0.96, R3D * 0.08, 8, 24);
     this.particleGeo = new THREE.OctahedronGeometry(0.14, 0);
-    this.beadGeo = new THREE.SphereGeometry(0.085, 10, 8);
+    this.beadGeo = new THREE.SphereGeometry(0.125, 12, 10);
     this.shockwaveGeo = new THREE.RingGeometry(0.75, 1.0, 32);
     this.auraGeo = new THREE.PlaneGeometry(2, 2);
     this.auraTex = this.createAuraTexture();
@@ -340,30 +345,17 @@ export class Sharikboz3DEngine {
       metalness: 0.35,
     });
 
-    // Instanced Trajectory Beads
+    // Instanced Trajectory Beads (crisp bright white dots)
     const beadMat = new THREE.MeshBasicMaterial({
-      color: 0xf8fafc,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.96,
+      toneMapped: false,
     });
     this.beadInstanced = new THREE.InstancedMesh(this.beadGeo, beadMat, this.maxBeads);
     this.beadInstanced.frustumCulled = false;
     this.beadInstanced.count = 0;
     this.scene.add(this.beadInstanced);
-
-    // Ghost Target Ring
-    this.ghostRingMat = new THREE.MeshBasicMaterial({
-      color: 0xfde047,
-      transparent: true,
-      opacity: 0.65,
-      side: THREE.DoubleSide,
-    });
-    this.ghostRing = new THREE.Mesh(
-      new THREE.RingGeometry(R3D * 0.72, R3D * 0.95, 28),
-      this.ghostRingMat
-    );
-    this.ghostRing.visible = false;
-    this.scene.add(this.ghostRing);
 
     // Pooled 3D Particles (pure unlit color so burst shards match each ball's classic hue)
     const partMat = new THREE.MeshBasicMaterial({
@@ -702,9 +694,9 @@ export class Sharikboz3DEngine {
     const rightX = toWorldX(RIGHT_WALL);
     const playW = rightX - leftX;
 
-    // 1. Vibrant Multi-Stop Gradient 3D Backdrop Wall
+    // 1. Vibrant Multi-Stop Gradient 3D Backdrop Wall (oversized for any mobile aspect ratio)
     const skyTex = track(this.createGradientBackdropTexture(theme));
-    const backGeo = track(new THREE.PlaneGeometry(playW + 5, 30));
+    const backGeo = track(new THREE.PlaneGeometry(playW + 14, 38));
     const backMat = track(
       new THREE.MeshStandardMaterial({
         map: skyTex,
@@ -1139,12 +1131,12 @@ export class Sharikboz3DEngine {
       }
     }
 
-    // 6. Cannon rotation, recoil & chamber orbs
-    this.cannonBarrelGroup.rotation.z = params.aimAngle - Math.PI / 2;
+    // 6. Cannon rotation, recoil & chamber orbs (align +Y barrel with 2D-to-3D aim vector)
+    this.cannonBarrelGroup.rotation.z = -params.aimAngle - Math.PI / 2;
     const rec = params.cannonRecoil * 0.26;
     this.cannonBarrelGroup.position.set(
       -Math.cos(params.aimAngle) * rec,
-      -Math.sin(params.aimAngle) * rec,
+      Math.sin(params.aimAngle) * rec,
       0
     );
 
@@ -1254,51 +1246,28 @@ export class Sharikboz3DEngine {
       }
     }
 
-    // 10. Aim Trajectory Beads & Ghost Ring
+    // 10. Aim Trajectory Beads (thick bright white dots along aim path)
     if (params.aimTrace && !params.projectile) {
       const pts = params.aimTrace.points;
       const count = Math.min(this.maxBeads, Math.max(0, pts.length - 1));
       this.beadInstanced.count = count;
-      const beadColorHex =
-        params.activeKind === 'bomb'
-          ? 0xfb923c
-          : params.activeKind === 'rainbow'
-          ? 0xffffff
-          : COLOR_PALETTE[params.activeColor].hex;
-      (this.beadInstanced.material as THREE.MeshBasicMaterial).color.setHex(beadColorHex);
-      (this.beadInstanced.material as THREE.MeshBasicMaterial).opacity = params.isAiming
-        ? 0.88
-        : 0.42;
+      const beadMat = this.beadInstanced.material as THREE.MeshBasicMaterial;
+      beadMat.color.setHex(0xffffff);
+      beadMat.opacity = params.isAiming ? 0.98 : 0.78;
 
       for (let i = 0; i < count; i++) {
         const pt = pts[i + 1];
-        const fade = 1 - (i / Math.max(1, count)) * 0.55;
-        const sc = (params.isAiming ? 1.05 : 0.78) * fade;
-        _vec3.set(toWorldX(pt.x), toWorldY(pt.y), 0.15);
+        const fade = 1 - (i / Math.max(1, count)) * 0.35;
+        const sc = (params.isAiming ? 1.12 : 0.95) * fade;
+        _vec3.set(toWorldX(pt.x), toWorldY(pt.y), 0.18);
         _scaleVec.setScalar(sc);
         _quat.identity();
         _mat4.compose(_vec3, _quat, _scaleVec);
         this.beadInstanced.setMatrixAt(i, _mat4);
       }
       this.beadInstanced.instanceMatrix.needsUpdate = true;
-
-      if (params.aimTrace.snapPixel) {
-        this.ghostRing.visible = true;
-        this.ghostRing.position.set(
-          toWorldX(params.aimTrace.snapPixel.x),
-          toWorldY(params.aimTrace.snapPixel.y),
-          0.12
-        );
-        this.ghostRingMat.color.setHex(beadColorHex);
-        this.ghostRingMat.opacity = params.isAiming ? 0.8 : 0.35;
-        const pulse = 1 + 0.08 * Math.sin(time * 7);
-        this.ghostRing.scale.setScalar(pulse);
-      } else {
-        this.ghostRing.visible = false;
-      }
     } else {
       this.beadInstanced.count = 0;
-      this.ghostRing.visible = false;
     }
 
     // 11. Update Pooled 3D Particles
@@ -1378,15 +1347,47 @@ export class Sharikboz3DEngine {
     this.renderer.render(this.scene, this.camera);
   }
 
+  private updateCameraFraming(w: number, h: number) {
+    const aspect = Math.max(0.32, w / Math.max(1, h));
+    const vFovRad = THREE.MathUtils.degToRad(this.camera.fov);
+    const tanHalfV = Math.tan(vFovRad / 2);
+    // Required span to show both side pillars, all 11 columns, ceiling, and cannon on any screen
+    const minVisibleW = 14.8;
+    const minVisibleH = 25.4;
+    const distForH = minVisibleH / 2 / tanHalfV;
+    const distForW = minVisibleW / 2 / (tanHalfV * aspect);
+    this.camera.aspect = aspect;
+    this.camera.position.z = Math.max(distForH, distForW);
+    this.camera.updateProjectionMatrix();
+  }
+
+  public getBucketScreenCoords(): { topPct: number; xsPct: number[] } {
+    const leftX = toWorldX(LEFT_WALL);
+    const rightX = toWorldX(RIGHT_WALL);
+    const bucketW = (rightX - leftX) / 5;
+    const by = toWorldY(BONUS_BUCKET_Y) - 0.14;
+    const xsPct: number[] = [];
+    let topPct = 73;
+    this.camera.updateMatrixWorld();
+    for (let i = 0; i < 5; i++) {
+      const bx = leftX + (i + 0.5) * bucketW;
+      _vec3.set(bx, by, 0.35).project(this.camera);
+      xsPct.push(((_vec3.x + 1) * 0.5) * 100);
+      if (i === 0) topPct = ((1 - _vec3.y) * 0.5) * 100;
+    }
+    return { topPct, xsPct };
+  }
+
   public resize() {
     const w = this.container.clientWidth || 450;
     const h = this.container.clientHeight || 800;
-    this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
+    this.updateCameraFraming(w, h);
     this.renderer.setSize(w, h);
   }
 
   public dispose() {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     this.themeTextures.forEach((t) => t.dispose());
     this.orbMaterials.forEach((m) => m.dispose());
     this.accentRingMat?.dispose();
@@ -1416,7 +1417,6 @@ export class Sharikboz3DEngine {
     this.bombBodyMat.dispose();
     this.bombGlowMat.dispose();
     this.rainbowCoreMat.dispose();
-    this.ghostRingMat.dispose();
     (this.beadInstanced.material as THREE.Material).dispose();
     (this.particleInstanced.material as THREE.Material).dispose();
     (this.motesInstanced.material as THREE.Material).dispose();

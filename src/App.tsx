@@ -14,6 +14,13 @@ import {
   SaveState,
 } from './game/types';
 
+declare global {
+  interface Window {
+    __setPreloaderProgress?: (pct: number) => void;
+    __finishPreloader?: () => void;
+  }
+}
+
 const STORAGE_KEY = 'sharikboz_3d_save_v1';
 
 const DEFAULT_SAVE: SaveState = {
@@ -96,6 +103,18 @@ export default function App() {
       soundEngine.stopMusic();
     }
   }, [gameState]);
+
+  const handleSceneReady = useCallback(() => {
+    window.__finishPreloader?.();
+  }, []);
+
+  useEffect(() => {
+    window.__setPreloaderProgress?.(85);
+    const fallback = window.setTimeout(() => {
+      window.__finishPreloader?.();
+    }, 3500);
+    return () => window.clearTimeout(fallback);
+  }, []);
 
   const startLevel = useCallback((levelId: number) => {
     soundEngine.unlock();
@@ -210,6 +229,7 @@ export default function App() {
             onStartLevel={startLevel}
             onToggleMute={handleToggleMute}
             onToggleLang={handleToggleLang}
+            onReady={handleSceneReady}
           />
         )}
 

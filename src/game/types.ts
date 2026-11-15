@@ -179,16 +179,16 @@ export const CANVAS_H = 800;
 export const LEFT_WALL = 16;
 export const RIGHT_WALL = 434;
 export const TOP_CEILING_BASE = 72;
-export const DANGER_LINE_Y = 594;
+export const DANGER_LINE_Y = 572;
 export const CANNON_X = 225;
-export const CANNON_Y = 706;
+export const CANNON_Y = 716;
 export const BUBBLE_R = 19;
 export const BUBBLE_D = BUBBLE_R * 2;
 export const ROW_H = BUBBLE_R * Math.sqrt(3);
 export const GRID_COLS = 11;
 export const PROJECTILE_SPEED = 1180;
 export const BONUS_BUCKET_VALUES = [50, 100, 200, 100, 50];
-export const BONUS_BUCKET_Y = 636;
+export const BONUS_BUCKET_Y = 602;
 export const BOMB_MAX_CHARGE = 5;
 
 export const COLOR_PALETTE: Record<
@@ -247,7 +247,7 @@ export const COLOR_PALETTE: Record<
 
 export const COPY = {
   ru: {
-    gameTitle: 'ШАРИКБОЗ 3D',
+    gameTitle: 'Игра Шарики',
     gameSubtitle: 'Цветная пушка',
     startPlay: 'Начать игру',
     continueLevel: 'Играть · Уровень',
@@ -278,7 +278,7 @@ export const COPY = {
     worldLabel: 'Мир',
   },
   en: {
-    gameTitle: 'SHARIKBOZ 3D',
+    gameTitle: 'Bubble Shooter',
     gameSubtitle: 'Color Pop Cannon',
     startPlay: 'Start Game',
     continueLevel: 'Play Stage',

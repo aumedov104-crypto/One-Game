@@ -65,6 +65,10 @@ export const GameCanvas3D = React.forwardRef<GameCanvasHandle, GameCanvas3DProps
     const engineRef = useRef<Sharikboz3DEngine | null>(null);
     const [popups, setPopups] = useState<FloatingTextItem[]>([]);
     const [contextLost, setContextLost] = useState(false);
+    const [bucketLayout, setBucketLayout] = useState<{ topPct: number; xsPct: number[] }>({
+      topPct: 72,
+      xsPct: [14, 32, 50, 68, 86],
+    });
 
     const pausedRef = useRef(paused);
     const endedRef = useRef(ended);
@@ -255,7 +259,15 @@ export const GameCanvas3D = React.forwardRef<GameCanvasHandle, GameCanvas3DProps
       domEl.addEventListener('webglcontextlost', onContextLost);
       domEl.addEventListener('webglcontextrestored', onContextRestored);
 
-      const onResize = () => engine.resize();
+      const syncBucketLabels = () => {
+        setBucketLayout(engine.getBucketScreenCoords());
+      };
+      syncBucketLabels();
+
+      const onResize = () => {
+        engine.resize();
+        syncBucketLabels();
+      };
       window.addEventListener('resize', onResize);
 
       const pushPopup = (x2d: number, y2d: number, text: string, color = '#FDE68A') => {
@@ -1046,15 +1058,16 @@ export const GameCanvas3D = React.forwardRef<GameCanvasHandle, GameCanvas3DProps
         {/* Isolated Three.js WebGL Mount */}
         <div ref={mountRef} className="w-full h-full cursor-crosshair" />
 
-        {/* Bonus Bucket Score Labels (subtle, aligned at BONUS_BUCKET_Y) */}
-        <div
-          className="absolute inset-x-0 pointer-events-none flex items-center justify-around px-4"
-          style={{ top: `${(BONUS_BUCKET_Y / CANVAS_H) * 100 + 2.4}%` }}
-        >
+        {/* Bonus Bucket Score Labels (projected directly onto the 5 raised 3D colored rings) */}
+        <div className="absolute inset-0 pointer-events-none">
           {BONUS_BUCKET_VALUES.map((val, idx) => (
             <span
               key={idx}
-              className="font-mono text-[10px] font-bold text-slate-200/75 tabular-nums"
+              className="absolute -translate-x-1/2 font-mono text-[10px] font-bold text-slate-100/90 tabular-nums drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]"
+              style={{
+                left: `${bucketLayout.xsPct[idx] ?? 50}%`,
+                top: `${bucketLayout.topPct + 1.4}%`,
+              }}
             >
               +{val}
             </span>
