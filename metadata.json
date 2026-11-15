@@ -1,0 +1,6 @@
+{
+  "name": "Sharikboz — Vertical Bubble Cannon",
+  "description": "A vertical 9:16 arcade bubble shooter game with cannon aiming, wall bounces, cascading cluster drops, and multi-stage progression.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

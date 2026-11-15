@@ -1,0 +1,298 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Montserrat", system-ui, -apple-system, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    font-family: var(--font-sans);
+  }
+}
+
+/* 3D Extruded Typography */
+.text-3d-gold {
+  color: #fde047;
+  text-shadow:
+    0 1px 0 #d97706,
+    0 2px 0 #b45309,
+    0 3px 0 #78350f,
+    0 6px 12px rgba(0, 0, 0, 0.75);
+}
+
+.text-3d-white {
+  color: #f8fafc;
+  text-shadow:
+    0 1px 0 #94a3b8,
+    0 2px 0 #475569,
+    0 3px 0 #1e293b,
+    0 5px 10px rgba(0, 0, 0, 0.7);
+}
+
+.text-3d-amber {
+  color: #fcd34d;
+  text-shadow:
+    0 1px 0 #b45309,
+    0 2px 0 #78350f,
+    0 4px 8px rgba(0, 0, 0, 0.65);
+}
+
+.text-3d-emerald {
+  color: #6ee7b7;
+  text-shadow:
+    0 1px 0 #059669,
+    0 2px 0 #064e3b,
+    0 4px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* 3D Beveled Panels (supports theme overrides via CSS vars) */
+.panel-3d {
+  background: var(--theme-panel-bg, linear-gradient(180deg, #1a336b 0%, #0d1a3d 100%));
+  border: 1px solid var(--theme-panel-border, rgba(96, 165, 250, 0.45));
+  box-shadow:
+    0 8px 0 #060a14,
+    0 18px 36px rgba(0, 0, 0, 0.8),
+    inset 0 2px 1px rgba(255, 255, 255, 0.2),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.45);
+}
+
+.subpanel-3d {
+  background: var(--theme-subpanel-bg, linear-gradient(180deg, #0b1636 0%, #081026 100%));
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.65),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Prismatic Ball-Color Trim Bar matching the 6 classic orb hues */
+.ball-spectrum-bar {
+  background: linear-gradient(
+    90deg,
+    #cc1424 0%,
+    #ff7b00 20%,
+    #f5df00 40%,
+    #16a33a 60%,
+    #1955e6 80%,
+    #a824d6 100%
+  );
+}
+
+/* Theme-Aware Tactile 3D Arcade Buttons */
+.btn-3d-theme-primary {
+  background: var(--theme-btn-primary-bg, linear-gradient(180deg, #ffe600 0%, #f59e0b 55%, #d97706 100%));
+  border: 1px solid var(--theme-btn-primary-border, #fef08a);
+  color: var(--theme-btn-primary-text, #1c1002);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
+  box-shadow:
+    0 4px 0 var(--theme-btn-primary-shadow, #92400e),
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    inset 0 2px 1px rgba(255, 255, 255, 0.6);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1), filter 120ms ease;
+}
+.btn-3d-theme-primary:hover {
+  filter: brightness(1.07);
+}
+.btn-3d-theme-primary:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 var(--theme-btn-primary-shadow, #92400e),
+    0 4px 10px rgba(0, 0, 0, 0.38),
+    inset 0 2px 1px rgba(255, 255, 255, 0.5);
+}
+
+.btn-3d-theme-secondary {
+  background: var(--theme-btn-sec-bg, linear-gradient(180deg, #2850a8 0%, #17306e 100%));
+  border: 1px solid var(--theme-btn-sec-border, rgba(125, 211, 252, 0.55));
+  color: #f8fafc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 4px 0 var(--theme-btn-sec-shadow, #091536),
+    0 7px 14px rgba(0, 0, 0, 0.42),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.25);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1), filter 120ms ease;
+}
+.btn-3d-theme-secondary:hover {
+  filter: brightness(1.1);
+}
+.btn-3d-theme-secondary:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 var(--theme-btn-sec-shadow, #091536),
+    0 3px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+}
+
+/* Tactile 3D Arcade Buttons */
+.btn-3d-gold {
+  background: linear-gradient(180deg, #ffe600 0%, #f59e0b 52%, #d97706 100%);
+  border: 1px solid #fef08a;
+  color: #1c1002;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 4px 0 #92400e,
+    0 9px 20px rgba(245, 158, 11, 0.35),
+    inset 0 2px 1px rgba(255, 255, 255, 0.65);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1), filter 120ms ease;
+}
+.btn-3d-gold:hover {
+  filter: brightness(1.06);
+}
+.btn-3d-gold:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #92400e,
+    0 4px 10px rgba(245, 158, 11, 0.28),
+    inset 0 2px 1px rgba(255, 255, 255, 0.5);
+}
+
+.btn-3d-cyan {
+  background: linear-gradient(180deg, #38f3ff 0%, #00c4de 55%, #008299 100%);
+  border: 1px solid #a5f3fc;
+  color: #031e24;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 4px 0 #064e5e,
+    0 8px 18px rgba(0, 238, 255, 0.3),
+    inset 0 2px 1px rgba(255, 255, 255, 0.6);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1), filter 120ms ease;
+}
+.btn-3d-cyan:hover {
+  filter: brightness(1.07);
+}
+.btn-3d-cyan:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #064e5e,
+    0 3px 8px rgba(0, 238, 255, 0.25);
+}
+
+.btn-3d-slate {
+  background: linear-gradient(180deg, #2b4170 0%, #172445 100%);
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  color: #f1f5f9;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  box-shadow:
+    0 4px 0 #090e1a,
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.22);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1), filter 120ms ease;
+}
+.btn-3d-slate:hover {
+  filter: brightness(1.12);
+}
+.btn-3d-slate:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #090e1a,
+    0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.btn-3d-orange {
+  background: linear-gradient(180deg, #ff8a33 0%, #ff3b1f 100%);
+  border: 1px solid #fed7aa;
+  color: #1f0502;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 4px 0 #8a1608,
+    0 8px 20px rgba(255, 59, 31, 0.45),
+    inset 0 2px 1px rgba(255, 255, 255, 0.55);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-3d-orange:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #8a1608,
+    0 4px 10px rgba(255, 59, 31, 0.35);
+}
+
+.stage-card-3d {
+  background: var(--theme-panel-bg, linear-gradient(180deg, #1d2a47 0%, #10192d 100%));
+  border: 1px solid var(--theme-panel-border, rgba(148, 163, 184, 0.35));
+  box-shadow:
+    0 4px 0 #070b15,
+    0 8px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.2);
+  transition: transform 90ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 90ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stage-card-3d:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.stage-card-3d:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #070b15,
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.stage-card-3d-active {
+  background: linear-gradient(180deg, #4f3b14 0%, #261b08 100%);
+  border: 1px solid #ffe600;
+  box-shadow:
+    0 4px 0 #78350f,
+    0 8px 18px rgba(255, 230, 0, 0.28),
+    inset 0 1.5px 1px rgba(254, 240, 138, 0.35);
+}
+
+@keyframes modalPop {
+  0% {
+    opacity: 0;
+    transform: perspective(700px) rotateX(8deg) scale(0.92) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(700px) rotateX(0deg) scale(1) translateY(0);
+  }
+}
+
+@keyframes starReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-18deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-modal-pop {
+  animation: modalPop 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-star-1 {
+  animation: starReveal 320ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+}
+.animate-star-2 {
+  animation: starReveal 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+}
+.animate-star-3 {
+  animation: starReveal 320ms cubic-bezier(0.16, 1, 0.3, 1) 380ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-modal-pop,
+  .animate-star-1,
+  .animate-star-2,
+  .animate-star-3 {
+    animation: none !important;
+  }
+}
