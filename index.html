@@ -161,11 +161,13 @@
         var labelEl = document.getElementById('pl-label');
         var titleEl = document.getElementById('pl-title');
         var subEl = document.getElementById('pl-sub');
+        var isEn = false;
         try {
           var raw = localStorage.getItem('sharikboz_3d_save_v1');
           if (raw) {
             var parsed = JSON.parse(raw);
             if (parsed && parsed.language === 'en') {
+              isEn = true;
               if (titleEl) titleEl.textContent = 'Bubble Shooter';
               if (subEl) subEl.textContent = '3D Arcade Cannon';
               if (labelEl) labelEl.textContent = 'Loading 3D arena…';
@@ -177,6 +179,41 @@
           if (fill) fill.style.width = pct + '%';
           if (pctEl) pctEl.textContent = Math.round(pct) + '%';
         }
+        function showLoadError(msg) {
+          if (finished) return;
+          window.clearInterval(timer);
+          if (fill) fill.style.background = '#ef4444';
+          if (labelEl) {
+            labelEl.style.color = '#fca5a5';
+            labelEl.textContent = msg;
+          }
+        }
+        window.addEventListener(
+          'error',
+          function (ev) {
+            var t = ev && ev.target;
+            if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
+              var src = t.src || t.href || '';
+              if (src.indexOf('fonts.googleapis') !== -1) return;
+              if (src.indexOf('main.tsx') !== -1) {
+                showLoadError(
+                  isEn
+                    ? 'Build required: Settings → Pages → Source: GitHub Actions'
+                    : 'Нужна сборка: Settings → Pages → Source: GitHub Actions'
+                );
+              } else {
+                showLoadError((isEn ? 'Load failed: ' : 'Ошибка файла: ') + src.split('/').pop());
+              }
+            } else if (ev && ev.message) {
+              showLoadError(ev.message);
+            }
+          },
+          true
+        );
+        window.addEventListener('unhandledrejection', function (ev) {
+          var r = ev && ev.reason;
+          showLoadError(r && r.message ? r.message : String(r || 'Load error'));
+        });
         var timer = window.setInterval(function () {
           if (finished) return;
           if (pct < 72) {
